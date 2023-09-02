@@ -1,4 +1,4 @@
-import userModel from "../models/userModel.js";
+import userModel from "../models/MongoDB/userModel.js";
 import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
