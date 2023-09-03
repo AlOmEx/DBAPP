@@ -1,7 +1,8 @@
 import fs from 'fs';
-import path from 'path';
-import Sequelize from 'sequelize';
-import config from '../../config/config.json' assert { type: 'json' };;
+import path, {dirname} from 'path';
+import Sequelize, { DataTypes } from 'sequelize';
+import config from '../../config/config.json' assert { type: 'json' };
+
 
 const basename = path.basename(import.meta.url);
 const db = {};
@@ -11,10 +12,10 @@ let sequelize = new Sequelize(config.development.database, config.development.us
   ...config.development
 });
 
-const modelsDir = path.join(path.dirname(import.meta.url), 'models/MySQL');
-console.log(modelsDir);
-if (fs.existsSync(modelsDir)) {
-  fs.readdirSync(modelsDir)
+const actualdir = './models/MySQL'
+
+if (fs.existsSync(actualdir)) {
+  fs.readdirSync(actualdir)
     .filter(file => {
       return (
         file.indexOf('.') !== 0 &&
@@ -22,17 +23,23 @@ if (fs.existsSync(modelsDir)) {
         file.slice(-3) === '.js'
       );
     })
-    .forEach(file => {
-      const model = sequelize['import'](path.join(modelsDir, file));
+    .forEach(async (file) => {
+      console.log("Here's File",file);
+      const module = await import('./' + file);
+      const model = module.default(sequelize, DataTypes);
       db[model.name] = model;
+      console.log("Here's in the for each: ",db[model.name]);
     });
 } else {
-  console.error(`Directory ${modelsDir} does not exist.`);
+  console.error(`Directory ${actualdir} does not exist.`);
 }
+
+
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
+    console.log("Here's in object",db[modelName]);
   }
 });
 
