@@ -4,8 +4,8 @@ import {
   loginController,
   testController,
   forgotPasswordController,
-} from "../controllers/authController.js";
-import { isSeller, requireSignIn } from "../middlewares/authMiddleware.js";
+} from "../../controllers/MongoDB/authController.js";
+import { isSeller, requireSignIn } from "../../middlewares/authMiddleware.js";
 
 //router object
 const router = express.Router();

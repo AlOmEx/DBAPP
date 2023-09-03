@@ -5,7 +5,7 @@ import {
   deleteCategoryCOntroller,
   singleCategoryController,
   updateCategoryController,
-} from "./../controllers/categoryController.js";
+} from "../../controllers/MongoDB/categoryController.js";
 
 const router = express.Router();
 

@@ -2,9 +2,9 @@ import express from "express";
 import colors from "colors";
 import dotenv from 'dotenv'
 import morgan from "morgan";
-import authRoutes from "./routes/authRoutes.js";
-import categoryRoutes from "./routes/categoryRoutes.js";
-import productRoutes from "./routes/productRoutes.js";
+import authRoutes from "./routes/MongoDB/authRoutes.js"
+import categoryRoutes from "./routes/MongoDB/categoryRoutes.js";
+import productRoutes from "./routes/MongoDB/productRoutes.js";
 
 import cors from "cors";
 import { connectDB_Mongo } from "./config/db.js";

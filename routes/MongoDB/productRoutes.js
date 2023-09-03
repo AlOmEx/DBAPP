@@ -12,7 +12,7 @@ import {
   searchProductController,
   realtedProductController,
   productCategoryController
-} from "../controllers/productController.js";
+} from "../../controllers/MongoDB/productController.js";
 
 import formidable from "express-formidable";
 
