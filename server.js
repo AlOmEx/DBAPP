@@ -42,7 +42,7 @@ const MONGO_PORT = process.env.MONGO_PORT || 8080;
 const MYSQL_PORT = process.env.MYSQL_PORT || 3306; // Use the desired MySQL port
 
 // Run listen
-
+db.sequelize.sync()
     app.listen(MONGO_PORT, () => {
         // console.log(`Server Running on ${process.env.DEV_MODE} mode.`);
         // console.log(`MongoDB Server Running on Port ${MONGO_PORT}`.bgCyan.white);

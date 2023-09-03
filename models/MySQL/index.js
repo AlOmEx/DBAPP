@@ -15,33 +15,37 @@ let sequelize = new Sequelize(config.development.database, config.development.us
 const actualdir = './models/MySQL'
 
 if (fs.existsSync(actualdir)) {
-  fs.readdirSync(actualdir)
-    .filter(file => {
-      return (
-        file.indexOf('.') !== 0 &&
-        file !== basename &&
-        file.slice(-3) === '.js'
-      );
-    })
-    .forEach(async (file) => {
-      console.log("Here's File",file);
-      const module = await import('./' + file);
-      const model = module.default(sequelize, DataTypes);
-      db[model.name] = model;
-      console.log("Here's in the for each: ",db[model.name]);
-    });
-} else {
+  await Promise.all(
+    fs.readdirSync(actualdir)
+      .filter(file => {
+        return (
+          file.indexOf('.') !== 0 &&
+          file !== basename &&
+          file.slice(-3) === '.js'
+        );
+      })
+      .map(async (file) => {
+        console.log("Here's File",file);
+        const module = await import('./' + file);
+        const model = module.default(sequelize, DataTypes);
+        console.log("Here's model", model);
+        db[model] = model;
+        console.log("Here's in the for each: ",db[model]);
+      })
+  );
+} 
+else {
   console.error(`Directory ${actualdir} does not exist.`);
 }
 
+console.log("Here's the db object:", db);
 
 
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-    console.log("Here's in object",db[modelName]);
-  }
-});
+// Object.keys(db).map(modelName => {
+//   if (db[modelName].associate) {
+//     db[modelName].associate(db);
+//   }
+// });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
