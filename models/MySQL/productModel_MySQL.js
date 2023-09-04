@@ -1,5 +1,7 @@
-const Product = (sequelize, DataTypes) => {
-  const Product = sequelize.define("Product", {
+import { DataTypes } from 'sequelize';
+
+const ProductModel = (sequelize) => {
+  const Product = sequelize.define('Product', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -25,23 +27,23 @@ const Product = (sequelize, DataTypes) => {
       allowNull: false,
     },
     photo: {
-      type: DataTypes.BLOB("long"),
-      allowNull: true, // Change this based on your requirements
+      type: DataTypes.BLOB('long'),
+      allowNull: true, 
     },
     shipping: {
       type: DataTypes.BOOLEAN,
-      allowNull: true, // Change this based on your requirements
+      allowNull: true, 
     },
   });
 
   Product.associate = (models) => {
     Product.belongsTo(models.Category, {
-      foreignKey: "category_id",
-      onDelete: "CASCADE",
+      foreignKey: 'category_id',
+      onDelete: 'CASCADE',
     });
   };
 
   return Product;
 };
 
-export default Product;
+export default ProductModel;
