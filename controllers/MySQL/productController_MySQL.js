@@ -72,11 +72,12 @@ export const getProductController = async (req, res) => {
     // Create a modified products array with base64 photo data
     const productsWithPhoto = products.map((product) => {
       
-      const { id, name, description, price, category_id, quantity, createdAt, updatedAt, photo} = product;
+      const { id, slug , name, description, price, category_id, quantity, createdAt, updatedAt, photo} = product;
 
       const photoDataUri = `data:image/jpeg;base64,${photo.toString("base64")}`;
       return {
         id,
+        slug,
         name,
         description,
         price,
@@ -108,22 +109,27 @@ export const getProductController = async (req, res) => {
     try {
       const product = await Product.findOne({
         where: { slug: req.params.slug },
-        attributes: { exclude: ["photo"] },
-        include: [Category],
       });
   
-      if (!product) {
-        res.status(404).send({
-          success: false,
-          message: "Product not found",
+      if (product && product.photo) {
+        // Convert the binary photo data to a Base64 data URI
+        const photoDataUri = `data:image/jpeg;base64,${product.photo.toString("base64")}`;
+  
+        // Create a modified product object with the photo as a data URI
+        const productWithPhotoDataUri = {
+          ...product.toJSON(),
+          photo: photoDataUri,
+        };
+  
+        return res.status(200).send({
+          success: true,
+          product: productWithPhotoDataUri,
         });
-        return;
       }
   
-      res.status(200).send({
-        success: true,
-        message: "Single Product Fetched",
-        product,
+      res.status(404).send({
+        success: false,
+        message: "Product not found",
       });
     } catch (error) {
       console.log(error);
@@ -135,31 +141,35 @@ export const getProductController = async (req, res) => {
     }
   };
 // get photo
-  export const productPhotoController = async (req, res) => {
-    try {
-      const product = await Product.findByPk(req.params.pid, {
-        attributes: ["photo"],
-      });
+export const productPhotoController = async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.pid, {
+      attributes: ["photo"],
+    });
 
-      console.log(typeof(product.photo));
-      if (product.photo) {
-        res.set("Content-type", product.photo.contentType);
-        return res.status(200).send(product.photo.data);
-      }
-  
-      res.status(404).send({
-        success: false,
-        message: "Photo not found",
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send({
-        success: false,
-        message: "Error while getting photo",
-        error: error.message,
+    console.log("Here's in function:", product);
+    if (product && product.photo) {
+      const photoDataUri = `data:image/jpeg;base64,${product.photo.toString("base64")}`;
+
+      return res.status(200).send({
+        success: true,
+        photo: photoDataUri,
       });
     }
-  };
+
+    res.status(404).send({
+      success: false,
+      message: "Photo not found",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while getting photo",
+      error: error.message,
+    });
+  }
+};
 //delete controller
   export const deleteProductController = async (req, res) => {
     try {
@@ -212,9 +222,7 @@ export const getProductController = async (req, res) => {
             .send({ error: "Photo is Required and should be less than 1MB" });
       }
   
-      const product = await Product.findByPk(req.params.pid, {
-        include: [Category],
-      });
+      const product = await Product.findByPk(req.params.pid);
   
       if (!product) {
         res.status(404).send({
