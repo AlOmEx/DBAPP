@@ -2,6 +2,7 @@ import CategoryModel from "../../models/MySQL/categoryModel_MySQL.js";
 import ProductModel from "../../models/MySQL/productModel_MySQL.js";
 import slugify from "slugify";
 import fs from 'fs';
+import { Op } from "sequelize";
 import db from "../../models/MySQL/index.js";
 const sequelize = db.sequelize;
 const Category = CategoryModel(sequelize);
@@ -147,7 +148,7 @@ export const productPhotoController = async (req, res) => {
       attributes: ["photo"],
     });
 
-    console.log("Here's in function:", product);
+    console.log("Here's in function:", product.photo);
     if (product && product.photo) {
       const photoDataUri = `data:image/jpeg;base64,${product.photo.toString("base64")}`;
 
@@ -262,41 +263,65 @@ export const productPhotoController = async (req, res) => {
 export const productFiltersController = async (req, res) => {
   try {
     const { checked, sortPrice, sortCreatedTime } = req.body;
-    let where = {};
+
+    // Define the filter criteria
+    const filterCriteria = {};
 
     if (checked.length > 0) {
-      where.categoryId = checked;
+      filterCriteria.category_id = { [Op.in]: checked };
     }
 
-    let order = [];
+    // Define the sorting options
+    const sort = [];
 
-    if (sortPrice === "asc") {
-      order.push(["price", "ASC"]);
-    } else if (sortPrice === "desc") {
-      order.push(["price", "DESC"]);
+    if (sortPrice === 'asc') {
+      sort.push(['price', 'ASC']);
+    } else if (sortPrice === 'desc') {
+      sort.push(['price', 'DESC']);
     }
 
-    if (sortCreatedTime === "asc") {
-      order.push(["createdTime", "ASC"]);
-    } else if (sortCreatedTime === "desc") {
-      order.push(["createdTime", "DESC"]);
+    if (sortCreatedTime === 'asc') {
+      sort.push(['createdAt', 'ASC']);
+    } else if (sortCreatedTime === 'desc') {
+      sort.push(['createdAt', 'DESC']);
     }
 
+    // Fetch products based on filter criteria and sorting options
     const products = await Product.findAll({
-      where,
-      include: [Category],
-      order,
+      where: filterCriteria,
+      order: sort,
+    });
+
+    const productsWithPhoto = products.map((product) => {
+      
+      const { id, slug , name, description, price, category_id, quantity, createdAt, updatedAt, photo} = product;
+
+      const photoDataUri = `data:image/jpeg;base64,${photo.toString("base64")}`;
+      return {
+        id,
+        slug,
+        name,
+        description,
+        price,
+        category_id,
+        quantity,
+        createdAt,
+        updatedAt,
+        photo: photoDataUri,
+      };
     });
 
     res.status(200).send({
       success: true,
-      products,
+      countTotal: productsWithPhoto.length,
+      message: "All Products",
+      products: productsWithPhoto,
     });
   } catch (error) {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error while filtering products",
+      message: 'Error while filtering products',
       error: error.message,
     });
   }
@@ -327,15 +352,34 @@ export const productFiltersController = async (req, res) => {
       const offset = (page - 1) * perPage;
   
       const products = await Product.findAll({
-        attributes: { exclude: ['photo'] },
         limit: perPage,
         offset,
         order: [['createdAt', 'DESC']],
       });
+      const productsWithPhoto = products.map((product) => {
+      
+        const { id, slug , name, description, price, category_id, quantity, createdAt, updatedAt, photo} = product;
+  
+        const photoDataUri = `data:image/jpeg;base64,${photo.toString("base64")}`;
+        return {
+          id,
+          slug,
+          name,
+          description,
+          price,
+          category_id,
+          quantity,
+          createdAt,
+          updatedAt,
+          photo: photoDataUri,
+        };
+      });
   
       res.status(200).send({
         success: true,
-        products,
+        countTotal: productsWithPhoto.length,
+        message: "All Products",
+        products: productsWithPhoto,
       });
     } catch (error) {
       console.log(error);
@@ -358,10 +402,26 @@ export const productFiltersController = async (req, res) => {
             { description: { [Op.like]: `%${keyword}%` } },
           ],
         },
-        attributes: { exclude: ['photo'] },
       });
+      const productsWithPhoto = results.map((product) => {
+      
+        const { id, slug , name, description, price, category_id, quantity, createdAt, updatedAt, photo} = product;
   
-      res.status(200).json(results);
+        const photoDataUri = `data:image/jpeg;base64,${photo.toString("base64")}`;
+        return {
+          id,
+          slug,
+          name,
+          description,
+          price,
+          category_id,
+          quantity,
+          createdAt,
+          updatedAt,
+          photo: photoDataUri,
+        };
+      });  
+      res.status(200).json(productsWithPhoto);
     } catch (error) {
       console.log(error);
       res.status(400).send({
