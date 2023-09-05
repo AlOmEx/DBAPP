@@ -25,12 +25,12 @@ if (fs.existsSync(actualdir)) {
         );
       })
       .map(async (file) => {
-        console.log("Here's File",file);
+        // console.log("Here's File",file);
         const module = await import('./' + file);
         const model = module.default(sequelize, DataTypes);
-        console.log("Here's model", model);
+        // console.log("Here's model", model);
         db[model] = model;
-        console.log("Here's in the for each: ",db[model]);
+        // console.log("Here's in the for each: ",db[model]);
       })
   );
 } 
@@ -38,14 +38,14 @@ else {
   console.error(`Directory ${actualdir} does not exist.`);
 }
 
-console.log("Here's the db object:", db);
 
 
-// Object.keys(db).map(modelName => {
-//   if (db[modelName].associate) {
-//     db[modelName].associate(db);
-//   }
-// });
+
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

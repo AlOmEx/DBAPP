@@ -1,17 +1,20 @@
-import CategoryModel from "../../models/MySQL/categoryModel_MySQL";
-import ProductModel from "../../models/MySQL/productModel_MySQL";
+import CategoryModel from "../../models/MySQL/categoryModel_MySQL.js";
+import ProductModel from "../../models/MySQL/productModel_MySQL.js";
 import slugify from "slugify";
+import fs from 'fs';
 import db from "../../models/MySQL/index.js";
 const sequelize = db.sequelize;
 const Category = CategoryModel(sequelize);
 const Product = ProductModel(sequelize);
 export const createProductController = async (req, res) => {
     try {
-      const { name, description, price, category, quantity, shipping } =
+      const { name, description, price, category_id, quantity } =
         req.fields;
       const { photo } = req.files;
   
       // Validation
+      console.log("Checking for name:", name);
+      console.log("Checking for photo", photo);
       if (!name) {
         return res.status(500).send({ error: "Name is Required" });
       }
@@ -21,7 +24,7 @@ export const createProductController = async (req, res) => {
       if (!price) {
         return res.status(500).send({ error: "Price is Required" });
       }
-      if (!category) {
+      if (!category_id) {
         return res.status(500).send({ error: "Category is Required" });
       }
       if (!quantity) {
@@ -37,9 +40,8 @@ export const createProductController = async (req, res) => {
         name,
         description,
         price,
-        category,
+        category_id,
         quantity,
-        shipping,
         slug: slugify(name),
       });
   
@@ -63,30 +65,44 @@ export const createProductController = async (req, res) => {
     }
   };
 //get all products
-  export const getProductController = async (req, res) => {
-    try {
-      const products = await Product.findAll({
-        include: [Category],
-        attributes: { exclude: ["photo"] },
-        limit: 12,
-        order: [["createdAt", "DESC"]],
-      });
-  
-      res.status(200).send({
-        success: true,
-        counTotal: products.length,
-        message: "All Products",
-        products,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send({
-        success: false,
-        message: "Error in getting products",
-        error: error.message,
-      });
-    }
-  };
+export const getProductController = async (req, res) => {
+  try {
+    const products = await Product.findAll();
+
+    // Create a modified products array with base64 photo data
+    const productsWithPhoto = products.map((product) => {
+      
+      const { id, name, description, price, category_id, quantity, createdAt, updatedAt, photo} = product;
+
+      const photoDataUri = `data:image/jpeg;base64,${photo.toString("base64")}`;
+      return {
+        id,
+        name,
+        description,
+        price,
+        category_id,
+        quantity,
+        createdAt,
+        updatedAt,
+        photo: photoDataUri,
+      };
+    });
+
+    res.status(200).send({
+      success: true,
+      countTotal: productsWithPhoto.length,
+      message: "All Products",
+      products: productsWithPhoto,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in getting products",
+      error: error.message,
+    });
+  }
+};
 // get single product
   export const getSingleProductController = async (req, res) => {
     try {
@@ -124,8 +140,9 @@ export const createProductController = async (req, res) => {
       const product = await Product.findByPk(req.params.pid, {
         attributes: ["photo"],
       });
-  
-      if (product.photo && product.photo.data) {
+
+      console.log(typeof(product.photo));
+      if (product.photo) {
         res.set("Content-type", product.photo.contentType);
         return res.status(200).send(product.photo.data);
       }
@@ -174,7 +191,7 @@ export const createProductController = async (req, res) => {
 //upate product
   export const updateProductController = async (req, res) => {
     try {
-      const { name, description, price, category, quantity, shipping } =
+      const { name, description, price, category, quantity } =
         req.fields;
       const { photo } = req.files;
       // Validation
@@ -234,39 +251,48 @@ export const createProductController = async (req, res) => {
     }
   };
 // filters
-  export const productFiltersController = async (req, res) => {
-    try {
-      const { checked, radio } = req.body;
-      let where = {};
-  
-      if (checked.length > 0) {
-        where.categoryId = checked;
-      }
-  
-      if (radio.length > 0) {
-        where.price = {
-          [Op.between]: [radio[0], radio[1]],
-        };
-      }
-  
-      const products = await Product.findAll({
-        where,
-        include: [Category],
-      });
-  
-      res.status(200).send({
-        success: true,
-        products,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(400).send({
-        success: false,
-        message: "Error while filtering products",
-        error: error.message,
-      });
+export const productFiltersController = async (req, res) => {
+  try {
+    const { checked, sortPrice, sortCreatedTime } = req.body;
+    let where = {};
+
+    if (checked.length > 0) {
+      where.categoryId = checked;
     }
-  };
+
+    let order = [];
+
+    if (sortPrice === "asc") {
+      order.push(["price", "ASC"]);
+    } else if (sortPrice === "desc") {
+      order.push(["price", "DESC"]);
+    }
+
+    if (sortCreatedTime === "asc") {
+      order.push(["createdTime", "ASC"]);
+    } else if (sortCreatedTime === "desc") {
+      order.push(["createdTime", "DESC"]);
+    }
+
+    const products = await Product.findAll({
+      where,
+      include: [Category],
+      order,
+    });
+
+    res.status(200).send({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({
+      success: false,
+      message: "Error while filtering products",
+      error: error.message,
+    });
+  }
+};
 // product count
   export const productCountController = async (req, res) => {
     try {

@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-
+import CategoryModel from './categoryModel_MySQL.js';
 const ProductModel = (sequelize) => {
   const Product = sequelize.define('Product', {
     name: {
@@ -30,14 +30,11 @@ const ProductModel = (sequelize) => {
       type: DataTypes.BLOB('long'),
       allowNull: true, 
     },
-    shipping: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true, 
-    },
   });
+  const Category = CategoryModel(sequelize);
 
   Product.associate = (models) => {
-    Product.belongsTo(models.Category, {
+    Product.belongsTo(Category, {
       foreignKey: 'category_id',
       onDelete: 'CASCADE',
     });

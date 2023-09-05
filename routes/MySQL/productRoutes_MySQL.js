@@ -10,7 +10,7 @@ import {
   productPhotoController,
   updateProductController,
   searchProductController,
-  realtedProductController,
+  relatedProductController,
   productCategoryController
 } from "../../controllers/MySQL/productController_MySQL.js";
 
@@ -56,7 +56,7 @@ router.get("/product-list/:page", productListController);
 router.get("/search/:keyword", searchProductController);
 
 //similar product
-router.get("/related-product/:pid/:cid", realtedProductController);
+router.get("/related-product/:pid/:cid", relatedProductController);
 
 //category wise product
 router.get("/product-category/:slug", productCategoryController);
