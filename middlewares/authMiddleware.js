@@ -1,6 +1,9 @@
 import JWT from "jsonwebtoken";
 import userModel from "../models/MongoDB/userModel.js";
+import UserModel from "../models/MySQL/userModel_MySQL.js";
+import db from "../models/MySQL/index.js";
 
+const User = UserModel(db.sequelize);
 
 //Protected Routes token base
 export const requireSignIn = async (req, res, next) => {
@@ -19,7 +22,7 @@ export const requireSignIn = async (req, res, next) => {
 //Seller acceess
 export const isSeller = async (req, res, next) => {
   try {
-    const user = await userModel.findById(req.user._id);
+    const user = await User.findByPk(req.user.id);
     if (user.role !== 1) {
       return res.status(401).send({
         success: false,

@@ -28,10 +28,26 @@ const ProductModel = (sequelize) => {
     },
     photo: {
       type: DataTypes.BLOB('long'),
-      allowNull: true, 
+      allowNull: true,
     },
+  }, {
+    indexes: [
+      {
+        name: 'idx_price',
+        fields: ['price'],
+      },
+      {
+        name: 'idx_createdAt',
+        fields: ['createdAt'],
+      },
+      {
+        name: 'idx_categoryId',
+        fields: ['category_id'],
+      },
+    ],
   });
   const Category = CategoryModel(sequelize);
+
 
   Product.associate = (models) => {
     Product.belongsTo(Category, {

@@ -5,6 +5,7 @@ import morgan from "morgan";
 import authRoutes from "./routes/MongoDB/authRoutes.js"
 import categoryRoutes from "./routes/MongoDB/categoryRoutes.js";
 import productRoutes from "./routes/MongoDB/productRoutes.js";
+import authRoutes2 from "./routes/MySQL/authRoutes_MySQL.js";
 import categoryRoutes2 from "./routes/MySQL/categoryRoutes_MySQL.js"
 import productRoutes2 from "./routes/MySQL/productRoutes_MySQL.js"
 import cors from "cors";
@@ -31,6 +32,7 @@ app.use(morgan('dev'))
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use("/api/v2/auth", authRoutes2);
 app.use("/api/v2/category", categoryRoutes2);
 app.use("/api/v2/product", productRoutes2);
 //REST API

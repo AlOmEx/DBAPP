@@ -14,8 +14,6 @@ export const createProductController = async (req, res) => {
       const { photo } = req.files;
   
       // Validation
-      console.log("Checking for name:", name);
-      console.log("Checking for photo", photo);
       if (!name) {
         return res.status(500).send({ error: "Name is Required" });
       }
