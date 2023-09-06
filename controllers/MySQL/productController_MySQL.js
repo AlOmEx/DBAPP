@@ -476,18 +476,31 @@ export const productFiltersController = async (req, res) => {
   
       const products = await Product.findAll({
         where: { category_id: category.id },
-        include: [
-          {
-            model: Category,
-            as: "category",
-          },
-        ],
       });
+      const productsWithPhoto = products.map((product) => {
+      
+        const { id, slug , name, description, price, category_id, quantity, createdAt, updatedAt, photo} = product;
   
+        const photoDataUri = `data:image/jpeg;base64,${photo.toString("base64")}`;
+        return {
+          id,
+          slug,
+          name,
+          description,
+          price,
+          category_id,
+          quantity,
+          createdAt,
+          updatedAt,
+          photo: photoDataUri,
+        };
+      });  
+
+      console.log("Here's in the productCategoryController function:",productsWithPhoto);
       res.status(200).send({
         success: true,
         category,
-        products,
+        productsWithPhoto,
       });
     } catch (error) {
       console.log(error);
