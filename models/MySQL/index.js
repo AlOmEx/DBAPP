@@ -25,12 +25,9 @@ if (fs.existsSync(actualdir)) {
         );
       })
       .map(async (file) => {
-        // console.log("Here's File",file);
         const module = await import('./' + file);
         const model = module.default(sequelize, DataTypes);
-        // console.log("Here's model", model);
         db[model] = model;
-        // console.log("Here's in the for each: ",db[model]);
       })
   );
 } 

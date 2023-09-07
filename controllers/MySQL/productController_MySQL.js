@@ -494,7 +494,6 @@ export const productFiltersController = async (req, res) => {
         };
       });  
 
-      console.log("Here's in the productCategoryController function:",productsWithPhoto);
       res.status(200).send({
         success: true,
         category,

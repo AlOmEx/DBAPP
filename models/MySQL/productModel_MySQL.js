@@ -49,7 +49,7 @@ const ProductModel = (sequelize) => {
   const Category = CategoryModel(sequelize);
 
 
-  Product.associate = (models) => {
+  Product.associate = () => {
     Product.belongsTo(Category, {
       foreignKey: 'category_id',
       onDelete: 'CASCADE',

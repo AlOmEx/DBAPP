@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
-import UserModel from './userModel_MySQL';
-import ProductModel from './productModel_MySQL';
+import UserModel from './userModel_MySQL.js';
+import ProductModel from './productModel_MySQL.js';
 const OrderModel = (sequelize) => {
   const Order = sequelize.define('Order', {
     // You can define the properties of your Order here
