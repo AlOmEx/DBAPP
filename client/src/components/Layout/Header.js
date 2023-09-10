@@ -18,6 +18,7 @@ const Header = () => {
     toast.success("Logout Successfully");
   };
   const categories = useCategory();
+  console.log("Here's are the categories in Header", categories)
   const [cart] = useCart();
   return (
     <>

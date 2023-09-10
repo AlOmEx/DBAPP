@@ -22,6 +22,10 @@ import Register from "./pages/Auth/Register";
 import Login from "./pages/Auth/Login";
 import PrivateRoute from "./components/Routes/Private";
 import SellerRoute from "./components/Routes/SellerRoute";
+import AdminRoute from "./components/Routes/AdminRoute"
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import ProductsAdmin from "./pages/Admin/ProductsAdmin";
+
 
 function App() {
   return (
@@ -39,6 +43,10 @@ function App() {
         <Route path="seller/product/:slug" element={<UpdateProduct />} />
         <Route path="seller/products" element={<Products />} />
         <Route path="seller/users" element={<Users />} />
+      </Route>
+      <Route path="/dashboard" element={<AdminRoute />}>
+        <Route path="admin" element={<AdminDashboard />} />
+        <Route path="admin/products" element={<ProductsAdmin />} />
       </Route>
         
         <Route path="/" element={<HomePage />} />
